@@ -1,8 +1,10 @@
 package main
 
-import("https://github.com/dhanushhegde/bookstore_users-api/app") 
+import (
+	"github.com/dhanushhegde/bookstore_users-api/app"
+)
 
-func main(){
+func main() {
 	app.StartApplication()
-	
+
 }
