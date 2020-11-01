@@ -1,21 +1,32 @@
 package users
 
-import{
+import (
+	"fmt"
 
 	"github.com/dhanushhegde/bookstore_users-api/utils/errors"
-}
+)
 
-var {
+var (
 	usersDB = make(map[int64]*User)
-}
+)
 
-func (user User) Get() (*User, *errors.RestErr) {
-	result := userDB[user.Id]
-	if result == nil{
-		return nil,errors.NewNotFoundError{fmt.Sprintf{"user %d not found",user.Id}} 
+func (user *User) Get() *errors.RestErr {
+	result := usersDB[user.Id]
+	if result == nil {
+		return errors.NewNotFoundError(fmt.Sprintf("user %d not found", user.Id))
 	}
-	return nil, nil
+	user.Id = result.Id
+	user.FirstName = result.FirstName
+	user.LastName = result.LastName
+	user.Email = result.Email
+	user.DateCreated = result.DateCreated
+	return nil
 }
-func (user User) Save() *errors.RestErr {
+func (user *User) Save() *errors.RestErr {
+	current := usersDB[user.Id]
+	if current != nil {
+		return errors.NewBadRequestError(fmt.Sprintf("user %d already exists", user.Id))
+	}
+	usersDB[user.Id] = user
 	return nil
 }

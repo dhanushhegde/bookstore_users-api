@@ -1,7 +1,9 @@
 package user
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/dhanushhegde/bookstore_users-api/domain/users"
 	"github.com/dhanushhegde/bookstore_users-api/services"
@@ -12,6 +14,7 @@ import (
 //CreateUser function is used to create a user
 func CreateUser(c *gin.Context) {
 	var user users.User
+	// var user1 users.User1
 
 	// bytes, err := ioutil.ReadAll(c.Request.Body)
 	// if err != nil {
@@ -21,8 +24,11 @@ func CreateUser(c *gin.Context) {
 	// 	fmt.Println(err.Error())
 	// 	return
 	// }
-	if err := c.ShouldBindJSON(&user); err != nil {
+	// // bytes, _ := ioutil.ReadAll(c.Request.Body)
+	// fmt.Println(string(bytes))
 
+	if err := c.ShouldBindJSON(&user); err != nil {
+		fmt.Println(err)
 		restErr := errors.NewBadRequestError("invalid json body")
 		c.JSON(restErr.Status, restErr)
 		return
@@ -31,6 +37,7 @@ func CreateUser(c *gin.Context) {
 
 	if saveError != nil {
 		//TODO: handle user creation error
+		c.JSON(saveError.Status, saveError)
 		return
 	}
 	c.JSON(http.StatusCreated, result)
@@ -42,7 +49,20 @@ func CreateUser(c *gin.Context) {
 
 //GetUser function is used to get a user
 func GetUser(c *gin.Context) {
-	c.String(http.StatusNotImplemented, "implement me!")
+	// var user User
+	// if err:=services.
+	userId, userErr := strconv.ParseInt(c.Param("user_id"), 10, 64)
+	if userErr != nil {
+		err := errors.NewBadRequestError("user id should be a number")
+		c.JSON(err.Status, err)
+		return
+	}
+	user, getErr := services.GetUser(userId)
+	if getErr != nil {
+		c.JSON(getErr.Status, getErr)
+		return
+	}
+	c.JSON(http.StatusOK, user)
 }
 
 //SearchUser function is used to search for a user

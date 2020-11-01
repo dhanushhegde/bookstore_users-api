@@ -1,0 +1,1 @@
+curl -X POST \ http://localhost:8080/users \  -H 'Content-Type: application/json' \ -H 'Host: localhost:8080' \ -H 'Postman-Token: e9a9cc27-4f71-4541-8f02-6c91fcc1099e,2c4ef195-add6-45f2-b8ef-bd67270bad99' \ -d '{"id":2,"first_name":"john","last_name":"doe","email":"test@test.com","date_created":"01012020"}'
