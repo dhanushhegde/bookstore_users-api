@@ -29,10 +29,11 @@ func init() {
 	// datasourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s", "root", "SuperSecret1!", "127.0.0.1", "users_db")
 	datasourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s", username, password, host, schema)
 	var err error
-	Client, err := sql.Open("mysql", datasourceName)
+	Client, err = sql.Open("mysql", datasourceName)
 	if err != nil {
 		panic(err)
 	}
+	// Client = localClient
 	if err = Client.Ping(); err != nil {
 		panic(err)
 	}

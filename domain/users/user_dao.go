@@ -35,34 +35,22 @@ func (user *User) Get() *errors.RestErr {
 	return nil
 }
 func (user *User) Save() *errors.RestErr {
-	// stmt, _ := users_db.Client.Prepare("SELECT*FROM users")
-	// users_db.CLient.
-	userDbTemp := users_db.Client
-	if userDbTemp == nil {
-		fmt.Println("Db null")
-	}
-	results, err := userDbTemp.Exec("SELECT*FROM users")
-	// results, err := users_db.Client.Exec("SELECT*FROM users")
+
+	stmt, err := users_db.Client.Prepare(queryInsertUser)
 	if err != nil {
 		return errors.NewInternalServerError(err.Error())
 	}
-	fmt.Println(results)
-	// stmt, err := users_db.Client.Prepare(queryInsertUser)
-	// if err != nil {
-	// 	return errors.NewInternalServerError(err.Error())
-	// }
-	// defer stmt.Close()
-	// insertResult, err := stmt.Exec(user.FirstName, user.LastName, user.Email, user.DateCreated)
-	// if err != nil {
-	// 	return errors.NewInternalServerError(
-	// 		fmt.Sprintf("error while trying to save user: %s", err.Error()))
-	// }
-	// userId, err := insertResult.LastInsertId()
-	// if err != nil {
-	// 	return errors.NewInternalServerError(
-	// 		fmt.Sprintf("error while trying to save user: %s", err.Error()))
-	// }
-	// user.Id = userId
-	user.Id = 1
+	defer stmt.Close()
+	insertResult, err := stmt.Exec(user.FirstName, user.LastName, user.Email, user.DateCreated)
+	if err != nil {
+		return errors.NewInternalServerError(
+			fmt.Sprintf("error while trying to save user: %s", err.Error()))
+	}
+	userId, err := insertResult.LastInsertId()
+	if err != nil {
+		return errors.NewInternalServerError(
+			fmt.Sprintf("error while trying to save user: %s", err.Error()))
+	}
+	user.Id = userId
 	return nil
 }
