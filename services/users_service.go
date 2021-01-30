@@ -1,6 +1,8 @@
 package services
 
 import (
+	"os/user"
+
 	"github.com/dhanushhegde/bookstore_users-api/domain/users"
 	"github.com/dhanushhegde/bookstore_users-api/utils/crypto_utils"
 	"github.com/dhanushhegde/bookstore_users-api/utils/date_utils"
@@ -20,6 +22,7 @@ type usersServiceInterface interface {
 	GetUser(int64) (*users.User, *errors.RestErr)
 	DeleteUser(int64) *errors.RestErr
 	SearchUser(string) (users.Users, *errors.RestErr)
+	LoginUser() (*user.User, *errors.RestErr)
 }
 
 func (s *usersService) CreateUser(user users.User) (*users.User, *errors.RestErr) {
@@ -83,4 +86,13 @@ func (s *usersService) SearchUser(status string) (users.Users, *errors.RestErr) 
 	dao := &users.User{}
 	return dao.FindByStatus(status)
 
+}
+
+func (s *usersService) LoginUser(request users.LoginRequest) (*users.User, *errors.RestErr) {
+	dao := &users.User{
+		Email: request.Email, Password: request.Password}
+	if err := dao.FindByEmailAndPassword(); err != nil {
+		return nil, err
+	}
+	return dao, nil
 }

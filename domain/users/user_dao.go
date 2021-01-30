@@ -10,13 +10,14 @@ import (
 )
 
 const (
-	queryInsertUser       = "INSERT INTO users(first_name,last_name,email,date_created,status,password) VALUES(?,?,?,?,?,?);"
-	queryGetUser          = "SELECT id,first_name,last_name,email,date_created,status FROM users WHERE id=?;"
-	queryUpdateUser       = "UPDATE users SET first_name=?,last_name=?,email=? WHERE Id=?;"
-	queryDeleteUser       = "DELETE FROM users WHERE id=?"
-	queryFindUserByStatus = "SELECT id,first_name,last_name,email,date_created,status FROM users WHERE status=?;"
-	errorNoRows           = "no rows in result set"
-	indexUniqueEmail      = "email_UNIQUE"
+	queryInsertUser             = "INSERT INTO users(first_name,last_name,email,date_created,status,password) VALUES(?,?,?,?,?,?);"
+	queryGetUser                = "SELECT id,first_name,last_name,email,date_created,status FROM users WHERE id=?;"
+	queryUpdateUser             = "UPDATE users SET first_name=?,last_name=?,email=? WHERE Id=?;"
+	queryDeleteUser             = "DELETE FROM users WHERE id=?"
+	queryFindUserByStatus       = "SELECT id,first_name,last_name,email,date_created,status FROM users WHERE status=?;"
+	errorNoRows                 = "no rows in result set"
+	indexUniqueEmail            = "email_UNIQUE"
+	queryFindByEmailAndPassword = "SELECT id,first_name,last_name,email,date_created,status FROM users WHERE email=? and password=?"
 )
 
 var (
@@ -134,4 +135,28 @@ func (user *User) FindByStatus(status string) ([]User, *errors.RestErr) {
 		return nil, errors.NewNotFoundError(fmt.Sprintf("no users matching status %s", status))
 	}
 	return results, nil
+}
+
+func (user *User) FindByEmailAndPassword() *errors.RestErr {
+
+	stmt, err := users_db.Client.Prepare(queryFindByEmailAndPassword)
+	if err != nil {
+		// return nil, errors.NewInternalServerError(err.Error())
+		logger.Error("error while trying to prepare find user statement", err)
+		return errors.NewInternalServerError("database error")
+	}
+	defer stmt.Close()
+	result := stmt.QueryRow(user.Email, user.Password)
+
+	if getErr := result.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email, &user.DateCreated, &user.Status); getErr != nil {
+
+		// return mysql_utils.ParseError(getErr)
+
+		logger.Error("error while trying to get user email and password", getErr)
+		return errors.NewInternalServerError("database error")
+
+	}
+
+	return nil
+
 }

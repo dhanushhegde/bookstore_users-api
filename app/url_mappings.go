@@ -17,4 +17,5 @@ func mapUrls() {
 	router.DELETE("/users/:user_id", user.Delete)
 
 	router.GET("/internal/users/search", user.Search)
+	router.GET("/users/login", user.Login)
 }
